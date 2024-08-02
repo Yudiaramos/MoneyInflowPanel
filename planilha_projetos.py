@@ -19,10 +19,11 @@ def adicionar_dados_projetos():
     data_termico = entry_data_termico.get()
     valor_total = entry_valor_total.get()
     forma_pagto = combobox_forma_pagto.get()
+    valor_pago = entry_valor_pago.get()
 
     # Criar um DataFrame com os novos dados
-    novos_dados = pd.DataFrame([[proprietario, projeto_simplificado, projeto_detalhado, regularizacoes, desdobro, proj_bombeiro, data_inicio, data_termico, valor_total, forma_pagto]],
-                               columns=['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO'])
+    novos_dados = pd.DataFrame([[proprietario, projeto_simplificado, projeto_detalhado, regularizacoes, desdobro, proj_bombeiro, data_inicio, data_termico, valor_total, forma_pagto, valor_pago]],
+                               columns=['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO', 'VALOR PAGO'])
     
     try:
         if os.path.exists(financeiro_file_path):
@@ -38,7 +39,7 @@ def adicionar_dados_projetos():
                 df = pd.concat([df, novos_dados], ignore_index=True)
         else:
             # Criar um DataFrame vazio com os cabeçalhos apropriados
-            df = pd.DataFrame(columns=['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO'])
+            df = pd.DataFrame(columns=['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO', 'VALOR PAGO'])
             # Adicionar os novos dados
             df = pd.concat([df, novos_dados], ignore_index=True)
         
@@ -55,6 +56,7 @@ def adicionar_dados_projetos():
         entry_data_termico.delete(0, tk.END)
         entry_valor_total.delete(0, tk.END)
         combobox_forma_pagto.set('')
+        entry_valor_pago.delete(0, tk.END)
     except PermissionError:
         messagebox.showerror("Erro de Permissão", "Não foi possível acessar o arquivo. Verifique se ele está aberto em outro programa e tente novamente.")
     except Exception as e:
@@ -94,6 +96,8 @@ def preencher_campos_projetos(event):
     entry_valor_total_alt.delete(0, tk.END)
     entry_valor_total_alt.insert(0, values[8])
     combobox_forma_pagto_alt.set(values[9])
+    entry_valor_pago_alt.delete(0, tk.END)
+    entry_valor_pago_alt.insert(0, values[10])
 
 # Função para atualizar o dado selecionado
 def atualizar_dado_projetos():
@@ -109,6 +113,7 @@ def atualizar_dado_projetos():
     df.at[int(selected_item), 'DATA TÉRMICO'] = entry_data_termico_alt.get()
     df.at[int(selected_item), 'VALOR TOTAL'] = entry_valor_total_alt.get()
     df.at[int(selected_item), 'FORMA DE PAGTO'] = combobox_forma_pagto_alt.get()
+    df.at[int(selected_item), 'VALOR PAGO'] = entry_valor_pago_alt.get()
     df.to_excel(financeiro_file_path, index=False)
     carregar_dados_projetos()
     messagebox.showinfo("Sucesso", "Dados atualizados com sucesso")
@@ -158,7 +163,7 @@ notebook.add(frame_alterar, text='Alterar/Remover Dados')
 
 # --- Aba Adicionar Dados ---
 # Criar campos de entrada
-labels = ['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO']
+labels = ['PROPRIETÁRIO', 'PROJETO SIMPLIFICADO', 'PROJETO DETALHADO', 'REGULARIZAÇÕES', 'DESDOBRO', 'PROJ BOMBEIRO', 'DATA INICIO', 'DATA TÉRMICO', 'VALOR TOTAL', 'FORMA DE PAGTO', 'VALOR PAGO']
 entries = []
 
 # PROPRIETÁRIO
@@ -192,7 +197,7 @@ rb_desdobro_nao = ttk.Radiobutton(frame_desdobro, text='Não', variable=var_desd
 rb_desdobro_nao.pack(side='left')
 
 # Outros campos
-for label in labels[3:-1]:
+for label in labels[3:-2]:
     if label == 'DESDOBRO':
         continue
     frame = ttk.Frame(frame_adicionar)
@@ -212,6 +217,14 @@ lbl_pagto = ttk.Label(frame_pagto, text='FORMA DE PAGTO')
 lbl_pagto.pack(side='left')
 combobox_forma_pagto = ttk.Combobox(frame_pagto, values=['Cartão', 'Pix', 'Dinheiro'])
 combobox_forma_pagto.pack(fill='x', expand=True)
+
+# Adicionar campo para valor pago
+frame_valor_pago = ttk.Frame(frame_adicionar)
+frame_valor_pago.pack(fill='x', padx=5, pady=5)
+lbl_valor_pago = ttk.Label(frame_valor_pago, text='VALOR PAGO')
+lbl_valor_pago.pack(side='left')
+entry_valor_pago = ttk.Entry(frame_valor_pago)
+entry_valor_pago.pack(fill='x', expand=True)
 
 # Botão para adicionar os dados
 btn_adicionar = ttk.Button(frame_adicionar, text="Adicionar Dados", command=adicionar_dados_projetos)
@@ -275,7 +288,7 @@ rb_desdobro_nao_alt = ttk.Radiobutton(frame_desdobro_alt, text='Não', variable=
 rb_desdobro_nao_alt.pack(side='left')
 
 # Outros campos
-for label in labels[3:-1]:
+for label in labels[3:-2]:
     if label == 'DESDOBRO':
         continue
     frame = ttk.Frame(frame_alterar)
@@ -295,6 +308,14 @@ lbl_pagto_alt = ttk.Label(frame_pagto_alt, text='FORMA DE PAGTO')
 lbl_pagto_alt.pack(side='left')
 combobox_forma_pagto_alt = ttk.Combobox(frame_pagto_alt, values=['Cartão', 'Pix', 'Dinheiro'])
 combobox_forma_pagto_alt.pack(fill='x', expand=True)
+
+# Adicionar campo para valor pago
+frame_valor_pago_alt = ttk.Frame(frame_alterar)
+frame_valor_pago_alt.pack(fill='x', padx=5, pady=5)
+lbl_valor_pago_alt = ttk.Label(frame_valor_pago_alt, text='VALOR PAGO')
+lbl_valor_pago_alt.pack(side='left')
+entry_valor_pago_alt = ttk.Entry(frame_valor_pago_alt)
+entry_valor_pago_alt.pack(fill='x', expand=True)
 
 # Executar a aplicação
 root.mainloop()

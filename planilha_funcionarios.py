@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import tkinter.messagebox as messagebox
 
-funcionarios_file_path = '/mnt/data/PAGAMENTO DE FUNCIONARIOS.xlsx'
+funcionarios_file_path = 'PAGAMENTO DE FUNCIONARIOS.xlsx'
 
 # Função para adicionar os dados na planilha de Funcionários
 def adicionar_dados_funcionarios():
@@ -15,10 +15,11 @@ def adicionar_dados_funcionarios():
     data_admissao = entry_data_admissao.get()
     salario = entry_salario.get()
     forma_pagto = combobox_forma_pagto_func.get()
+    valor_pago = entry_valor_pago_func.get()
 
     # Criar um DataFrame com os novos dados
-    novos_dados = pd.DataFrame([[nome, cpf, cargo, data_admissao, salario, forma_pagto]],
-                               columns=['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO'])
+    novos_dados = pd.DataFrame([[nome, cpf, cargo, data_admissao, salario, forma_pagto, valor_pago]],
+                               columns=['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO', 'VALOR PAGO'])
     
     try:
         if os.path.exists(funcionarios_file_path):
@@ -34,7 +35,7 @@ def adicionar_dados_funcionarios():
                 df = pd.concat([df, novos_dados], ignore_index=True)
         else:
             # Criar um DataFrame vazio com os cabeçalhos apropriados
-            df = pd.DataFrame(columns=['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO'])
+            df = pd.DataFrame(columns=['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO', 'VALOR PAGO'])
             # Adicionar os novos dados
             df = pd.concat([df, novos_dados], ignore_index=True)
         
@@ -48,6 +49,7 @@ def adicionar_dados_funcionarios():
         entry_data_admissao.delete(0, tk.END)
         entry_salario.delete(0, tk.END)
         combobox_forma_pagto_func.set('')
+        entry_valor_pago_func.delete(0, tk.END)
     except PermissionError:
         messagebox.showerror("Erro de Permissão", "Não foi possível acessar o arquivo. Verifique se ele está aberto em outro programa e tente novamente.")
     except Exception as e:
@@ -77,6 +79,8 @@ def preencher_campos_funcionarios(event):
     entry_salario_alt.delete(0, tk.END)
     entry_salario_alt.insert(0, values[4])
     combobox_forma_pagto_func_alt.set(values[5])
+    entry_valor_pago_func_alt.delete(0, tk.END)
+    entry_valor_pago_func_alt.insert(0, values[6])
 
 # Função para atualizar o dado selecionado
 def atualizar_dado_funcionarios():
@@ -88,6 +92,7 @@ def atualizar_dado_funcionarios():
     df.at[int(selected_item), 'DATA ADMISSÃO'] = entry_data_admissao_alt.get()
     df.at[int(selected_item), 'SALÁRIO'] = entry_salario_alt.get()
     df.at[int(selected_item), 'FORMA DE PAGAMENTO'] = combobox_forma_pagto_func_alt.get()
+    df.at[int(selected_item), 'VALOR PAGO'] = entry_valor_pago_func_alt.get()
     df.to_excel(funcionarios_file_path, index=False)
     carregar_dados_funcionarios()
     messagebox.showinfo("Sucesso", "Dados atualizados com sucesso")
@@ -137,7 +142,7 @@ notebook.add(frame_alterar, text='Alterar/Remover Dados')
 
 # --- Aba Adicionar Dados ---
 # Criar campos de entrada
-labels = ['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO']
+labels = ['NOME', 'CPF', 'CARGO', 'DATA ADMISSÃO', 'SALÁRIO', 'FORMA DE PAGAMENTO', 'VALOR PAGO']
 entries = []
 
 # NOME
@@ -187,6 +192,14 @@ lbl_pagto = ttk.Label(frame_pagto, text='FORMA DE PAGAMENTO')
 lbl_pagto.pack(side='left')
 combobox_forma_pagto_func = ttk.Combobox(frame_pagto, values=['Cartão', 'Pix', 'Dinheiro'])
 combobox_forma_pagto_func.pack(fill='x', expand=True)
+
+# Adicionar campo para valor pago
+frame_valor_pago_func = ttk.Frame(frame_adicionar)
+frame_valor_pago_func.pack(fill='x', padx=5, pady=5)
+lbl_valor_pago_func = ttk.Label(frame_valor_pago_func, text='VALOR PAGO')
+lbl_valor_pago_func.pack(side='left')
+entry_valor_pago_func = ttk.Entry(frame_valor_pago_func)
+entry_valor_pago_func.pack(fill='x', expand=True)
 
 # Botão para adicionar os dados
 btn_adicionar = ttk.Button(frame_adicionar, text="Adicionar Dados", command=adicionar_dados_funcionarios)
@@ -266,6 +279,14 @@ lbl_pagto_alt = ttk.Label(frame_pagto_alt, text='FORMA DE PAGAMENTO')
 lbl_pagto_alt.pack(side='left')
 combobox_forma_pagto_func_alt = ttk.Combobox(frame_pagto_alt, values=['Cartão', 'Pix', 'Dinheiro'])
 combobox_forma_pagto_func_alt.pack(fill='x', expand=True)
+
+# Adicionar campo para valor pago
+frame_valor_pago_func_alt = ttk.Frame(frame_alterar)
+frame_valor_pago_func_alt.pack(fill='x', padx=5, pady=5)
+lbl_valor_pago_func_alt = ttk.Label(frame_valor_pago_func_alt, text='VALOR PAGO')
+lbl_valor_pago_func_alt.pack(side='left')
+entry_valor_pago_func_alt = ttk.Entry(frame_valor_pago_func_alt)
+entry_valor_pago_func_alt.pack(fill='x', expand=True)
 
 # Executar a aplicação
 root.mainloop()
